@@ -91,6 +91,58 @@ func main() {
 	}
 
 	numberDraw := strings.Split(input[0], ",")
+
+	boards := ParseBoards(input[2:])
+
+	lastNum := 0
+	for _, drawStr := range numberDraw {
+		drawNum, _ := strconv.Atoi(drawStr)
+		lastNum = drawNum
+		for x, _ := range boards {
+			boards[x].MarkNum(drawNum)
+		}
+		fmt.Printf("PreFilter %d\n", len(boards))
+		if len(boards) == 1 {
+			break
+		}
+		boards = FilterBingo(boards)
+		fmt.Printf("Post %d\n", len(boards))
+
+	}
+
+	// fmt.Println(numberDraw)
+	// fmt.Println(boards)
+	fmt.Printf("Score: %d, lastNum %d, result %d\n",
+		boards[0].CalculatePoints(), lastNum, lastNum*boards[0].CalculatePoints())
+}
+
+func FilterBingo(boards []Bingo) []Bingo {
+	n := 0
+	for _, board := range boards {
+		if !board.HasBingo() {
+			boards[n] = board
+			n++
+		}
+	}
+	boards = boards[:n]
+	return boards
+}
+
+func main_part1() {
+	// Main for part 1
+	f, err := os.Open("input.txt")
+	if err != nil {
+		os.Exit(1)
+	}
+	defer f.Close()
+	scanner := bufio.NewScanner(f)
+	input := []string{}
+	for scanner.Scan() {
+		line := scanner.Text()
+		input = append(input, line)
+	}
+
+	numberDraw := strings.Split(input[0], ",")
 	// numberDraw := []string{"57"}
 
 	boards := ParseBoards(input[2:])
@@ -103,10 +155,6 @@ func main() {
 		lastNum = drawNum
 		for x, _ := range boards {
 			if boards[x].MarkNum(drawNum) {
-				// boards[i] = board
-				// fmt.Println("MARKED NUM")
-				// fmt.Println(boards[x])
-				// Found number
 				if boards[x].HasBingo() {
 					fmt.Println("BINGO")
 					fmt.Println(boards[x])
@@ -132,7 +180,6 @@ func ParseBoards(lines []string) []Bingo {
 	boards := []Bingo{}
 
 	for i := 0; i < len(lines); i += 6 {
-		fmt.Printf("i: %d\n", i)
 		nums := [5][5]BingoNumber{}
 		for j, cardLine := range lines[i : i+5] {
 			line := [5]BingoNumber{}
