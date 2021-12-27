@@ -64,7 +64,24 @@ func (v Vent) GetPoints() []Point {
 			}
 		}
 	} else {
-		// i guess part 2 will say how to deal with not-straight lines
+		// Find the left side of the line
+		leftX, leftY := v.x1, v.y1
+		rightX, rightY := v.x2, v.y2
+		if v.x1 > v.x2 {
+			leftX, leftY = v.x2, v.y2
+			rightX, rightY = v.x1, v.y1
+		}
+
+		// figure out if we're going up or down
+		goingUp := 1
+		if leftY > rightY {
+			goingUp = -1
+		}
+
+		for i := 0; i <= rightX-leftX; i++ {
+			points = append(points, Point{leftX + i, leftY + (i * goingUp)})
+		}
+
 	}
 	return points
 }
@@ -88,14 +105,15 @@ func main() {
 	pointCounts := make(map[Point]int)
 
 	for _, vent := range vents {
-		if vent.IsStraightLine() {
-			for _, point := range vent.GetPoints() {
-				if val, ok := pointCounts[point]; ok {
-					// it was in the map
-					pointCounts[point] = val + 1
-				} else {
-					pointCounts[point] = 1
-				}
+		// if vent.IsStraightLine() {
+		// 	continue
+		// }
+		for _, point := range vent.GetPoints() {
+			if val, ok := pointCounts[point]; ok {
+				// it was in the map
+				pointCounts[point] = val + 1
+			} else {
+				pointCounts[point] = 1
 			}
 		}
 	}
@@ -103,10 +121,10 @@ func main() {
 	// fmt.Println(vents)
 	// fmt.Println(pointCounts)
 	count := 0
-	for k, v := range pointCounts {
+	for _, v := range pointCounts {
 		if v > 1 {
-			fmt.Println(k)
-			fmt.Println(v)
+			// fmt.Println(k)
+			// fmt.Println(v)
 			count += 1
 		}
 	}
